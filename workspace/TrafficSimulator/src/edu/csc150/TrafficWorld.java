@@ -23,13 +23,13 @@ public class TrafficWorld extends World {
 	public void populateRoads() {	//Populates Roads with Cars
 		Random rand = new Random();
 		for(int i = 0; i < HORIZONTAL_ROADS; i++) {
-			makeCar(Direction.EAST, rand.nextInt(WORLD_WIDTH), i * (ROAD_WIDTH + (WORLD_HEIGHT - (ROAD_WIDTH * HORIZONTAL_ROADS))/(HORIZONTAL_ROADS - 1)) + ROAD_OFFSET_RIGHT);
+			makeCar(Direction.EAST, rand.nextInt(WORLD_WIDTH), findVerticalOffset() + (i * (ROAD_WIDTH + findVerticalDistance())) + ROAD_OFFSET_RIGHT);
 		} for(int i = 0; i < HORIZONTAL_ROADS; i++) {
-			makeCar(Direction.WEST, rand.nextInt(WORLD_WIDTH), i * (ROAD_WIDTH + (WORLD_HEIGHT - (ROAD_WIDTH * HORIZONTAL_ROADS))/(HORIZONTAL_ROADS - 1)) + ROAD_OFFSET_LEFT);
+			makeCar(Direction.WEST, rand.nextInt(WORLD_WIDTH), findVerticalOffset() + (i * (ROAD_WIDTH + findVerticalDistance())) + ROAD_OFFSET_LEFT);
 		} for(int i = 0; i < VERTICAL_ROADS; i++) {
-			makeCar(Direction.NORTH, i * (ROAD_WIDTH + (WORLD_WIDTH - (ROAD_WIDTH * VERTICAL_ROADS))/(VERTICAL_ROADS - 1)) + ROAD_OFFSET_RIGHT, rand.nextInt(WORLD_HEIGHT));
+			makeCar(Direction.NORTH, findHorizontalOffset() + (i * (ROAD_WIDTH + findHorizontalDistance())) + ROAD_OFFSET_RIGHT, rand.nextInt(WORLD_HEIGHT));
 		} for(int i = 0; i < VERTICAL_ROADS; i++) {
-			makeCar(Direction.SOUTH, i * (ROAD_WIDTH + (WORLD_WIDTH - (ROAD_WIDTH * VERTICAL_ROADS))/(VERTICAL_ROADS - 1)) + ROAD_OFFSET_LEFT, rand.nextInt(WORLD_HEIGHT));
+			makeCar(Direction.SOUTH, findHorizontalOffset() + (i * (ROAD_WIDTH + findHorizontalDistance())) + ROAD_OFFSET_LEFT, rand.nextInt(WORLD_HEIGHT));
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class TrafficWorld extends World {
 	public void genHorizontalRoads() {	//Generates Horizontal Roads
 		for(int i = 0; i < HORIZONTAL_ROADS; i++) {
 			Road road = new Road(ROAD_WIDTH, WORLD_WIDTH, Direction.EAST);
-			this.addObject(road, 0, i * (ROAD_WIDTH + (WORLD_HEIGHT - (ROAD_WIDTH * HORIZONTAL_ROADS))/(HORIZONTAL_ROADS - 1)));
+			this.addObject(road, 0, findVerticalOffset() + (i * (ROAD_WIDTH + findVerticalDistance())));
 			road.draw();
 		}
 	}
@@ -52,8 +52,28 @@ public class TrafficWorld extends World {
 	public void genVerticalRoads() {	//Generates Vertical Roads
 		for(int i = 0; i < VERTICAL_ROADS; i++) {
 			Road road = new Road(ROAD_WIDTH, WORLD_HEIGHT, Direction.NORTH);
-			this.addObject(road, i * (ROAD_WIDTH + (WORLD_WIDTH - (ROAD_WIDTH * VERTICAL_ROADS))/(VERTICAL_ROADS - 1)), 0);
+			this.addObject(road, findHorizontalOffset() + (i * (ROAD_WIDTH + findHorizontalDistance())), 0);
 			road.draw();
 		}
+	}
+	
+	public int findVerticalOffset() {
+		int result = ((WORLD_HEIGHT  - (ROAD_WIDTH * HORIZONTAL_ROADS))/(HORIZONTAL_ROADS - 1))/2;
+		return result;
+	}
+	
+	public int findVerticalDistance() {
+		int result = ((WORLD_HEIGHT - (findVerticalOffset() * 2))  - (ROAD_WIDTH * HORIZONTAL_ROADS))/(HORIZONTAL_ROADS - 1);
+		return result;
+	}
+	
+	public int findHorizontalOffset() {
+		int result = ((WORLD_WIDTH  - (ROAD_WIDTH * VERTICAL_ROADS))/(VERTICAL_ROADS - 1))/2;
+		return result;
+	}
+	
+	public int findHorizontalDistance() {
+		int result = ((WORLD_WIDTH - (findHorizontalOffset() * 2))  - (ROAD_WIDTH * VERTICAL_ROADS))/(VERTICAL_ROADS - 1);
+		return result;
 	}
 }
