@@ -1,7 +1,11 @@
 package edu.csc150;
 
-public class StopLight {
-	private State state = State.RED;
+import enums.Direction;
+import greenfoot.Actor;
+
+public class StopLight extends Actor {
+	private State state;
+	private Direction dir;
 	
 	private enum State {
 		GREEN, YELLOW, RED;
@@ -18,4 +22,9 @@ public class StopLight {
 	public void changeRed() {
 		state = State.RED;
 	}
+
+	public State getState() {
+		return state;
+	}
+
 }

@@ -8,7 +8,7 @@ import enums.Paint;
 import greenfoot.World;
 
 public class TrafficWorld extends World {
-	private static final int VERTICAL_SEPARATION = 175, HORIZONTAL_SEPARATION = 159, ROAD_OFFSET_RIGHT = 40,
+	public static final int VERTICAL_SEPARATION = 175, HORIZONTAL_SEPARATION = 159, ROAD_OFFSET_RIGHT = 40,
 			ROAD_OFFSET_LEFT = 10, ROAD_WIDTH = 50, WORLD_WIDTH = 998, WORLD_HEIGHT = 750, CELL_SIZE = 1,
 			HORIZONTAL_ROADS = 5, VERTICAL_ROADS = 7;
 	public TrafficWorld() {
