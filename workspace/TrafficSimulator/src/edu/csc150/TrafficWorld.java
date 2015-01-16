@@ -11,12 +11,15 @@ public class TrafficWorld extends World {
 	public static final int VERTICAL_SEPARATION = 175, HORIZONTAL_SEPARATION = 159, ROAD_OFFSET_RIGHT = 40,
 			ROAD_OFFSET_LEFT = 10, ROAD_WIDTH = 50, WORLD_WIDTH = 998, WORLD_HEIGHT = 750, CELL_SIZE = 1,
 			HORIZONTAL_ROADS = 5, VERTICAL_ROADS = 7;
+	
 	public TrafficWorld() {
 		super(WORLD_WIDTH, WORLD_HEIGHT, CELL_SIZE);
+		System.out.println("Test");
 		this.getBackground().setColor(Color.green);
 		this.getBackground().fill();
 		genHorizontalRoads();
 		genVerticalRoads();
+		genIntersections();
 		populateRoads();
 	}
 	
@@ -41,6 +44,15 @@ public class TrafficWorld extends World {
 		this.addObject(car, x, y);
 	}
 	
+	public void genIntersections() {
+		for(int x = 0; x < HORIZONTAL_ROADS; x++) {
+			for(int y = 0; y < VERTICAL_ROADS; y++) {
+				Intersection intersection = new Intersection();
+				this.addObject(intersection, findHorizontalOffset() + (y * (ROAD_WIDTH + findHorizontalDistance())) + (ROAD_WIDTH/2), findVerticalOffset() + (x * (ROAD_WIDTH + findVerticalDistance())) + (ROAD_WIDTH/2));
+				intersection.placeStopLights();
+			}
+		}
+	}
 	public void genHorizontalRoads() {	//Generates Horizontal Roads
 		for(int i = 0; i < HORIZONTAL_ROADS; i++) {
 			Road road = new Road(ROAD_WIDTH, WORLD_WIDTH, Direction.EAST);
