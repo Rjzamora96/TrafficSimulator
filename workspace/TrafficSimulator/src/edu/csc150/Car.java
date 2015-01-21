@@ -1,15 +1,17 @@
 package edu.csc150;
 
+import java.util.Random;
+
 import enums.*;
 import greenfoot.Actor;
 
 public class Car extends Actor implements IntersectionListener{
 	private State state = Car.State.FAR;
-	private int speed = 1;
-	private Direction direction;
+	private int speed = 1, turnCountdown = 0;
+	private Direction direction, turnDirection;
 	private Intersection watching = null;
-	private boolean isGoing = true;
-	private boolean stopped = false;
+	private static final int RIGHT_TIMER = 17, LEFT_TIMER = 32;
+	private boolean isGoing = true, stopped = false, turning = false, turningRight = false;
 	
 	public Car(Paint color, Direction dir) {
 		this.direction = dir;
@@ -17,20 +19,67 @@ public class Car extends Actor implements IntersectionListener{
 		this.setRotation(dir.getRotation());
 	}
 	
-	public void act() {
-		checkStopLight();
-		move(speed);
-		if(this.getX() >= getWorld().getWidth()-1) {
-			setLocation(0, this.getY());
-		} else if(this.getX() <= 0) {
-			setLocation(getWorld().getWidth(), this.getY());
-		} else if(this.getY() >= getWorld().getHeight()-1) {
-			setLocation(this.getX(), 0);
-		} else if(this.getY() <= 0) {
-			setLocation(this.getX(), getWorld().getHeight());
+	public void decideTurn() {
+		Random rand = new Random();
+		int roll = rand.nextInt(3);
+		int nextRotation = this.getRotation();
+		if(roll == 1) {
+			nextRotation = (nextRotation == 270)? 0 : nextRotation + 90;
+			turningRight = true;
+		} else if(roll == 2) {
+			nextRotation = (nextRotation == 0)? 270 : nextRotation - 90;
+			turningRight = false;
+		} if(nextRotation != this.getRotation()) {
+			for(Direction dir : Direction.values()) {
+				if(dir.getRotation() == nextRotation) {
+					turnDirection = dir;
+				}
+			}
 		}
 	}
 	
+	public void bump() throws Exception {
+		if(isTouching(Car.class)) {
+			throw new Exception("Cars collided, two dead!");
+		}
+	}
+	
+	public void act() {
+		checkStopLight();
+		move(speed);
+		if(turning && !stopped) {
+			turnCountdown--;
+			if(turnCountdown == 0) {
+				executeTurn();
+			}
+		} if(this.getX() >= getWorld().getWidth()-1) {
+			getWorld().removeObject(this);
+		} else if(this.getX() <= 0) {
+			getWorld().removeObject(this);
+		} else if(this.getY() >= getWorld().getHeight()-1) {
+			getWorld().removeObject(this);
+		} else if(this.getY() <= 0) {
+			getWorld().removeObject(this);
+		} if(this.getWorld() != null) {
+			try {
+				bump();
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+				Explosion exp = new Explosion();
+				getWorld().addObject(exp, getX(), getY());
+				removeTouching(Car.class);
+				getWorld().removeObject(this);
+			}
+		}
+	}
+	
+	private void executeTurn() {
+		this.turning = false;
+		this.direction = this.turnDirection;
+		this.turnDirection = null;
+		this.setRotation(direction.getRotation());
+	}
+
 	public enum State {
 		IN, COMING, GOING, FAR;
 	}
@@ -54,7 +103,7 @@ public class Car extends Actor implements IntersectionListener{
 					if(state == Car.State.IN && (light.getLight() == Lights.RED || light.getLight() == Lights.YELLOW) && !isGoing) {
 						speed = 0;
 						stopped = true;
-					} else if(state == Car.State.COMING && light.getLight() == Lights.YELLOW) {
+					} else if(state == Car.State.COMING && (light.getLight() == Lights.RED ||light.getLight() == Lights.YELLOW)) {
 						isGoing = false;
 						stopped = false;
 						speed = 1;
@@ -62,6 +111,9 @@ public class Car extends Actor implements IntersectionListener{
 						speed = 2;
 						isGoing = true;
 						stopped = false;
+						if(turnDirection != null && !turning) {
+							beginTurnCountdown();
+						}
 					} else if(state == Car.State.FAR){
 						speed = 2;
 						isGoing = false;
@@ -78,6 +130,11 @@ public class Car extends Actor implements IntersectionListener{
 		}
 	}
 
+	private void beginTurnCountdown() {
+		this.turnCountdown = (turningRight)? RIGHT_TIMER : LEFT_TIMER;
+		turning = true;
+	}
+
 	@Override
 	public void inside() {
 		if(state == Car.State.COMING) {
@@ -91,6 +148,7 @@ public class Car extends Actor implements IntersectionListener{
 			state = Car.State.FAR;
 			watching = null;
 			isGoing = false;
+			decideTurn();
 		}
 	}
 	

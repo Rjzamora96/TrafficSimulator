@@ -14,15 +14,29 @@ public class TrafficWorld extends World {
 	
 	public TrafficWorld() {
 		super(WORLD_WIDTH, WORLD_HEIGHT, CELL_SIZE);
-		System.out.println("Test");
 		this.getBackground().setColor(Color.green);
 		this.getBackground().fill();
 		genHorizontalRoads();
 		genVerticalRoads();
 		genIntersections();
-		populateRoads();
+		//populateRoads();
 	}
 	
+	public void act() {
+		Random rand = new Random();
+		if(1 + rand.nextInt(100) > 99) {
+			int side = rand.nextInt(4);
+			if(side == 0) {
+				makeCar(Direction.EAST, 0, findVerticalOffset() + (rand.nextInt(HORIZONTAL_ROADS) * (ROAD_WIDTH + findVerticalDistance())) + ROAD_OFFSET_RIGHT);
+			} else if(side == 1) {
+				makeCar(Direction.WEST, WORLD_WIDTH, findVerticalOffset() + (rand.nextInt(HORIZONTAL_ROADS) * (ROAD_WIDTH + findVerticalDistance())) + ROAD_OFFSET_LEFT);
+			} else if(side == 2) {
+				makeCar(Direction.SOUTH, findHorizontalOffset() + (rand.nextInt(VERTICAL_ROADS) * (ROAD_WIDTH + findHorizontalDistance())) + ROAD_OFFSET_LEFT, 0);
+			} else if(side == 3) {
+				makeCar(Direction.NORTH, findHorizontalOffset() + (rand.nextInt(VERTICAL_ROADS) * (ROAD_WIDTH + findHorizontalDistance())) + ROAD_OFFSET_RIGHT, WORLD_HEIGHT);
+			}
+		}
+	}
 	public void populateRoads() {	//Populates Roads with Cars
 		Random rand = new Random();
 		for(int i = 0; i < HORIZONTAL_ROADS; i++) {
