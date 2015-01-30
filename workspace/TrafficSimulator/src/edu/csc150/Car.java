@@ -1,17 +1,17 @@
 package edu.csc150;
 
-import java.util.Random;
-
 import enums.*;
 import greenfoot.Actor;
 
-public class Car extends Actor implements IntersectionListener{
-	private State state = Car.State.FAR;
+public abstract class Car extends Actor implements IntersectionListener{
+	protected State state = Car.State.FAR;
 	private int speed = 1, turnCountdown = 0;
-	private Direction direction, turnDirection;
+	private Direction direction;
+	protected Direction turnDirection;
 	private Intersection watching = null;
-	private static final int RIGHT_TIMER = 17, LEFT_TIMER = 32;
-	private boolean isGoing = true, stopped = false, turning = false, turningRight = false;
+	protected static final int RIGHT_TIMER = 17, LEFT_TIMER = 32, MAX_ROTATION = 270, ROTATION_VAL = 90, BASE_ROTATION = 0;
+	private boolean isGoing = true, stopped = false, turning = false;
+	protected boolean turningRight = false;
 	
 	public Car(Paint color, Direction dir) {
 		this.direction = dir;
@@ -19,30 +19,15 @@ public class Car extends Actor implements IntersectionListener{
 		this.setRotation(dir.getRotation());
 	}
 	
-	public void decideTurn() {
-		Random rand = new Random();
-		int roll = rand.nextInt(3);
-		int nextRotation = this.getRotation();
-		if(roll == 1) {
-			nextRotation = (nextRotation == 270)? 0 : nextRotation + 90;
-			turningRight = true;
-		} else if(roll == 2) {
-			nextRotation = (nextRotation == 0)? 270 : nextRotation - 90;
-			turningRight = false;
-		} if(nextRotation != this.getRotation()) {
-			for(Direction dir : Direction.values()) {
-				if(dir.getRotation() == nextRotation) {
-					turnDirection = dir;
-				}
-			}
-		}
-	}
+	public abstract void decideTurn();
 	
 	public void bump() throws Exception {
 		if(isTouching(Car.class)) {
 			throw new Exception("Cars collided, two dead!");
 		}
 	}
+	
+	public abstract void checkMapEdge();
 	
 	public void act() {
 		checkStopLight();
@@ -52,15 +37,8 @@ public class Car extends Actor implements IntersectionListener{
 			if(turnCountdown == 0) {
 				executeTurn();
 			}
-		} if(this.getX() >= getWorld().getWidth()-1) {
-			getWorld().removeObject(this);
-		} else if(this.getX() <= 0) {
-			getWorld().removeObject(this);
-		} else if(this.getY() >= getWorld().getHeight()-1) {
-			getWorld().removeObject(this);
-		} else if(this.getY() <= 0) {
-			getWorld().removeObject(this);
-		} if(this.getWorld() != null) {
+		} this.checkMapEdge();
+		if(this.getWorld() != null) {
 			try {
 				bump();
 			} catch(Exception e) {

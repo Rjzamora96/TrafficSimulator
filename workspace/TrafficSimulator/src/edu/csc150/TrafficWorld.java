@@ -10,7 +10,7 @@ import greenfoot.World;
 public class TrafficWorld extends World {
 	public static final int VERTICAL_SEPARATION = 175, HORIZONTAL_SEPARATION = 159, ROAD_OFFSET_RIGHT = 40,
 			ROAD_OFFSET_LEFT = 10, ROAD_WIDTH = 50, WORLD_WIDTH = 998, WORLD_HEIGHT = 750, CELL_SIZE = 1,
-			HORIZONTAL_ROADS = 5, VERTICAL_ROADS = 7;
+			HORIZONTAL_ROADS = 5, VERTICAL_ROADS = 7, COLOR_CHOOSE = 4;
 	
 	public TrafficWorld() {
 		super(WORLD_WIDTH, WORLD_HEIGHT, CELL_SIZE);
@@ -25,7 +25,7 @@ public class TrafficWorld extends World {
 	public void act() {
 		Random rand = new Random();
 		if(1 + rand.nextInt(100) > 99) {
-			int side = rand.nextInt(4);
+			int side = rand.nextInt(COLOR_CHOOSE);
 			if(side == 0) {
 				makeCar(Direction.EAST, 0, findVerticalOffset() + (rand.nextInt(HORIZONTAL_ROADS) * (ROAD_WIDTH + findVerticalDistance())) + ROAD_OFFSET_RIGHT);
 			} else if(side == 1) {
@@ -53,9 +53,20 @@ public class TrafficWorld extends World {
 	public void makeCar(Direction dir, int x, int y) {
 		Random rand = new Random();
 		Paint[] possibleColors = Paint.values();
-		int selected = rand.nextInt(Paint.values().length - 1);
-		Car car = new Car(possibleColors[selected], dir);
-		this.addObject(car, x, y);
+		int selected = rand.nextInt(Paint.values().length);
+		if(selected == 0) {
+			Car car = new BlueCar(possibleColors[selected], dir);
+			this.addObject(car, x, y);
+		} else if(selected == 1) {
+			Car car = new PurpleCar(possibleColors[selected], dir);
+			this.addObject(car, x, y);
+		} else if(selected == 2) {
+			Car car = new RedCar(possibleColors[selected], dir);
+			this.addObject(car, x, y);
+		} else if(selected == 3) {
+			Car car = new YellowCar(possibleColors[selected], dir);
+			this.addObject(car, x, y);
+		}
 	}
 	
 	public void genIntersections() {
