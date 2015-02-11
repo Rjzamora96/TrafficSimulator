@@ -6,8 +6,10 @@ import enums.Paint;
 public class BlueCar extends Car{
 	private int turnCounter = 0;
 	private final int EVEN = 2;
+	public static int instancesCreated = 0;
 	public BlueCar(Paint color, Direction dir) {
 		super(color, dir);
+		instancesCreated++;
 	}
 	
 	@Override
@@ -40,5 +42,10 @@ public class BlueCar extends Car{
 		} else if(this.getY() <= 0) {
 			getWorld().removeObject(this);
 		}
+	}
+	
+	public void incrementStatistic() {
+		Statistic statistic = StatisticManager.findStatistic(this.watching);
+		statistic.setBlueCars(statistic.getBlueCars()+1);
 	}
 }

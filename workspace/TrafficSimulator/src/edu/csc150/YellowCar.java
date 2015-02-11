@@ -7,8 +7,10 @@ import enums.Paint;
 
 public class YellowCar extends Car{
 	private final int PROBABILITY_ROLL = 4;
+	public static int instancesCreated = 0;
 	public YellowCar(Paint color, Direction dir) {
 		super(color, dir);
+		instancesCreated++;
 	}
 	
 	@Override
@@ -39,5 +41,10 @@ public class YellowCar extends Car{
 		} else if(this.getY() <= 0) {
 			this.setLocation(this.getX(), getWorld().getHeight()-1);
 		}
+	}
+	
+	public void incrementStatistic() {
+		Statistic statistic = StatisticManager.findStatistic(this.watching);
+		statistic.setYellowCars(statistic.getYellowCars()+1);
 	}
 }

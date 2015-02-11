@@ -14,9 +14,14 @@ public class Intersection extends Actor {
 			new StopLight(Direction.SOUTH, true), new StopLight(Direction.WEST, false)
 	};
 	private int timer = 0;
+	private static int nextID = 1;
+	private int id = 1;
 	private static final int SWAP_TIMER = 300, WARNING_TIMER = 150;
 	public Intersection() {
 		this.getImage().setTransparency(0);
+		this.setId(nextID);
+		nextID++;
+		StatisticManager.addStatistic(new Statistic(this));
 	}
 	
 	public void placeStopLights() {
@@ -81,5 +86,13 @@ public class Intersection extends Actor {
 
 	public void setLights(StopLight[] lights) {
 		this.lights = lights;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }

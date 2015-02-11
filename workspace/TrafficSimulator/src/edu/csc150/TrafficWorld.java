@@ -1,16 +1,21 @@
 package edu.csc150;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Random;
 
 import enums.Direction;
 import enums.Paint;
+import greenfoot.GreenfootImage;
 import greenfoot.World;
 
 public class TrafficWorld extends World {
 	public static final int VERTICAL_SEPARATION = 175, HORIZONTAL_SEPARATION = 159, ROAD_OFFSET_RIGHT = 40,
 			ROAD_OFFSET_LEFT = 10, ROAD_WIDTH = 50, WORLD_WIDTH = 998, WORLD_HEIGHT = 750, CELL_SIZE = 1,
 			HORIZONTAL_ROADS = 5, VERTICAL_ROADS = 7, COLOR_CHOOSE = 4;
+	public static ArrayList<Intersection> intersectionList = new ArrayList<Intersection>();
+	public static long startTime = System.nanoTime();
+	public static GreenfootImage foreground = null;
 	
 	public TrafficWorld() {
 		super(WORLD_WIDTH, WORLD_HEIGHT, CELL_SIZE);
@@ -19,9 +24,15 @@ public class TrafficWorld extends World {
 		genHorizontalRoads();
 		genVerticalRoads();
 		genIntersections();
+		this.addObject(new Controller(), 0, 0);
 		//populateRoads();
 	}
 	
+	public static int getRuntime() { //Returns the runtime of the world in seconds.
+		long nowTime = System.nanoTime();
+		long delta = (nowTime - startTime)/1000000000;
+		return (int) delta;
+	}
 	public void act() {
 		Random rand = new Random();
 		if(1 + rand.nextInt(100) > 99) {
@@ -75,6 +86,7 @@ public class TrafficWorld extends World {
 				Intersection intersection = new Intersection();
 				this.addObject(intersection, findHorizontalOffset() + (y * (ROAD_WIDTH + findHorizontalDistance())) + (ROAD_WIDTH/2), findVerticalOffset() + (x * (ROAD_WIDTH + findVerticalDistance())) + (ROAD_WIDTH/2));
 				intersection.placeStopLights();
+				intersectionList.add(intersection);
 			}
 		}
 	}

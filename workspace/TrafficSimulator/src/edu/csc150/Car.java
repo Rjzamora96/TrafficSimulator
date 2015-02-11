@@ -8,7 +8,7 @@ public abstract class Car extends Actor implements IntersectionListener{
 	private int speed = 1, turnCountdown = 0;
 	private Direction direction;
 	protected Direction turnDirection;
-	private Intersection watching = null;
+	protected Intersection watching = null;
 	protected static final int RIGHT_TIMER = 17, LEFT_TIMER = 32, MAX_ROTATION = 270, ROTATION_VAL = 90, BASE_ROTATION = 0;
 	private boolean isGoing = true, stopped = false, turning = false;
 	protected boolean turningRight = false;
@@ -26,6 +26,8 @@ public abstract class Car extends Actor implements IntersectionListener{
 			throw new Exception("Cars collided, two dead!");
 		}
 	}
+	
+	public abstract void incrementStatistic();
 	
 	public abstract void checkMapEdge();
 	
@@ -117,6 +119,7 @@ public abstract class Car extends Actor implements IntersectionListener{
 	public void inside() {
 		if(state == Car.State.COMING) {
 			state = Car.State.IN;
+			this.incrementStatistic();
 		}
 	}
 

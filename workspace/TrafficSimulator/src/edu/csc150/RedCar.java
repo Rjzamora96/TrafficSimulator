@@ -3,10 +3,11 @@ package edu.csc150;
 import enums.Direction;
 import enums.Paint;
 
-public class RedCar extends Car{
-
+public class RedCar extends Car {
+	public static int instancesCreated = 0;
 	public RedCar(Paint color, Direction dir) {
 		super(color, dir);
+		instancesCreated++;
 	}
 	
 	@Override
@@ -24,6 +25,12 @@ public class RedCar extends Car{
 		} else if(this.getY() <= 0) {
 			this.setLocation(this.getX(), getWorld().getHeight()-1);
 		}
+	}
+
+	@Override
+	public void incrementStatistic() {
+		Statistic statistic = StatisticManager.findStatistic(this.watching);
+		statistic.setRedCars(statistic.getRedCars()+1);
 	}
 	
 }
