@@ -13,7 +13,7 @@ public class YellowCar extends Car{
 		instancesCreated++;
 	}
 	
-	@Override
+	/*@Override
 	public void decideTurn() {
 		Random rand = new Random();
 		int roll = rand.nextInt(PROBABILITY_ROLL);
@@ -28,7 +28,7 @@ public class YellowCar extends Car{
 				}
 			}
 		}
-	}
+	}*/
 	
 	@Override
 	public void checkMapEdge() {

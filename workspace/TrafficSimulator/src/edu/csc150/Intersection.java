@@ -14,9 +14,12 @@ public class Intersection extends Actor {
 			new StopLight(Direction.SOUTH, true), new StopLight(Direction.WEST, false)
 	};
 	private int timer = 0;
+	public int arrayX = 0, arrayY = 0;
 	private static int nextID = 1;
 	private int id = 1;
 	private static final int SWAP_TIMER = 300, WARNING_TIMER = 150;
+	public ArrayList<Intersection> neighbors = new ArrayList<Intersection>();
+	private boolean firstAct = true;
 	public Intersection() {
 		this.getImage().setTransparency(0);
 		this.setId(nextID);
@@ -59,6 +62,15 @@ public class Intersection extends Actor {
 	@Override
 	public void act() {
 		updateStopLights();
+		if(firstAct ) {
+			for(Intersection intersection : TrafficWorld.intersectionList) {
+				if((intersection.arrayX + 1 == this.arrayX || intersection.arrayX - 1 == this.arrayX) && intersection.arrayY == this.arrayY) {
+					neighbors.add(intersection);
+				} if((intersection.arrayY + 1 == this.arrayY || intersection.arrayY - 1 == this.arrayY) && intersection.arrayX == this.arrayX) {
+					neighbors.add(intersection);
+				}
+			} firstAct = false;
+		}
 		for(Object obj : getObjectsInRange(TrafficWorld.ROAD_WIDTH * 2, IntersectionListener.class)) {
 			carsGone.add((IntersectionListener) obj);
 		} for(Object obj : getObjectsInRange(TrafficWorld.ROAD_WIDTH + (TrafficWorld.ROAD_WIDTH/2), IntersectionListener.class)) {

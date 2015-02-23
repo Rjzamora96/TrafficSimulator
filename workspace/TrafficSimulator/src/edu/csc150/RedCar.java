@@ -10,9 +10,9 @@ public class RedCar extends Car {
 		instancesCreated++;
 	}
 	
-	@Override
+	/*@Override
 	public void decideTurn() {
-	}
+	}*/
 	
 	@Override
 	public void checkMapEdge() {

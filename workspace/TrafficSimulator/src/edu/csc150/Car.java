@@ -1,5 +1,8 @@
 package edu.csc150;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import enums.*;
 import greenfoot.Actor;
 
@@ -12,6 +15,10 @@ public abstract class Car extends Actor implements IntersectionListener{
 	protected static final int RIGHT_TIMER = 17, LEFT_TIMER = 32, MAX_ROTATION = 270, ROTATION_VAL = 90, BASE_ROTATION = 0;
 	private boolean isGoing = true, stopped = false, turning = false;
 	protected boolean turningRight = false;
+	private boolean hasPath = false;
+	private List<Intersection> closedPaths = new ArrayList<Intersection>();
+	private List<Intersection> route = new ArrayList<Intersection>();
+	private boolean hasDecidedTurn = false;
 	
 	public Car(Paint color, Direction dir) {
 		this.direction = dir;
@@ -19,7 +26,229 @@ public abstract class Car extends Actor implements IntersectionListener{
 		this.setRotation(dir.getRotation());
 	}
 	
-	public abstract void decideTurn();
+	/*private List<Intersection> findPath(Intersection current, Intersection destination) {
+		List<Intersection> path = new ArrayList<Intersection>();
+		closedPaths.add(current);
+		if(current != destination) {
+			Intersection best = null;
+			double shortest = 0;
+			boolean OVERRIDE = false;
+			for(Intersection neighbor : current.neighbors) {
+				if(!OVERRIDE) {
+					if(!closedPaths.contains(neighbor)) {
+						int dx = destination.getX() - neighbor.getX();
+						int dy = destination.getY() - neighbor.getY();
+						double dist = Math.sqrt((dx*dx) + (dy*dy));
+						closedPaths.add(current);
+						if(neighbor.arrayX != destination.arrayX && neighbor.arrayY != destination.arrayY) {
+							if(neighbor.arrayY < current.arrayY) {	//North of Current
+								if(this.getDirection() == Direction.NORTH) {
+									best = neighbor;
+								}
+							} else if(neighbor.arrayY > current.arrayY) {	//South of Current
+								if(this.getDirection() == Direction.SOUTH) {
+									best = neighbor;
+								}
+							} else if(neighbor.arrayX > current.arrayX) {	//East of Current
+								if(this.getDirection() == Direction.EAST) {
+									best = neighbor;
+								}
+							} else if(neighbor.arrayX < current.arrayX) {	//West of Current
+								if(this.getDirection() == Direction.WEST) {
+									best = neighbor;
+								}
+							}
+						} else {
+							if(neighbor.arrayX == destination.arrayX) {
+								if(current.arrayX > neighbor.arrayX && neighbor.arrayX > destination.arrayX) {
+									best = neighbor;
+								} else if(current.arrayX < neighbor.arrayX && neighbor.arrayX < destination.arrayX) {
+									best = neighbor;
+								}
+							} else if(neighbor.arrayY == destination.arrayY) {
+								if(current.arrayY > neighbor.arrayY && neighbor.arrayY > destination.arrayY) {
+									best = neighbor;
+								} else if(current.arrayY < neighbor.arrayY && neighbor.arrayY < destination.arrayY) {
+									best = neighbor;
+								}
+							}
+						} if(neighbor == destination) {
+							best = neighbor;
+							OVERRIDE = true;
+						}
+					}
+				}
+			}
+			if(best!= null) {
+				path = findPath(best, destination);
+				path.add(best);
+			}
+		}
+		return path;
+	}*/
+	//Euclidian Path
+	private List<Intersection> findPath(Intersection current, Intersection destination) {
+		List<Intersection> path = new ArrayList<Intersection>();
+		closedPaths.add(current);
+		if(current != destination) {
+			Intersection best = null;
+			double shortest = 0;
+			for(Intersection neighbor : current.neighbors) {
+				if(!closedPaths.contains(neighbor)) {
+					int dx = destination.getX() - neighbor.getX();
+					int dy = destination.getY() - neighbor.getY();
+					double dist = Math.sqrt((dx*dx) + (dy*dy));
+					closedPaths.add(neighbor);
+					if(best == null || dist <= shortest) {
+						best = neighbor;
+						shortest = dist;
+					}
+				}
+			} path = findPath(best, destination);
+			path.add(best); 
+		}
+		return path;
+	}
+	
+	//AVOID DESTINATION AT ALL COSTS
+	/*private List<Intersection> findPath(Intersection current, Intersection destination) {
+		List<Intersection> path = new ArrayList<Intersection>();
+		closedPaths.add(current);
+		if(current != destination) {
+			List<Intersection> best = null;
+			for(Intersection neighbor : current.neighbors) {
+				if(!closedPaths.contains(neighbor)) {
+					path = findPath(neighbor, destination);
+					path.add(neighbor);
+					if(best == null || path.size() > best.size()) {
+						best = path;
+					}
+				}
+			} if(best != null) {
+				path = best;
+			}
+		}
+		return path;
+	}*/
+	
+	//Rube-Goldburg Style
+	/*private List<Intersection> findPath(Intersection current, Intersection destination) {
+		List<Intersection> path = new ArrayList<Intersection>();
+		closedPaths.add(current);
+		if(current != destination) {
+			List<Intersection> best = null;
+			for(Intersection neighbor : current.neighbors) {
+				if(!closedPaths.contains(neighbor)) {
+					path = findPath(neighbor, destination);
+					path.add(neighbor);
+					closedPaths.add(neighbor);
+					if(best == null || path.size() <= best.size()) {
+						best = path;
+					}
+				}
+			} if(best != null) {
+				path = best;
+			}
+		}
+		return path;
+	}*/
+	
+	public void decideTurn() {
+		if(!route.isEmpty()) {
+			hasDecidedTurn = true;
+			Intersection next = route.get(route.size()-1);
+			int nextRotation = this.getRotation();
+			System.out.println("Next: " + next.arrayX + ", " + next.arrayY + " Current: " + watching.arrayX + ", " + watching.arrayY);
+			if(next.arrayY < watching.arrayY) {
+				System.out.println("North");
+				switch(this.getDirection()) {
+				case EAST:
+					nextRotation = (nextRotation == BASE_ROTATION)? MAX_ROTATION : nextRotation - ROTATION_VAL;
+					turningRight = false;
+					beginTurnCountdown();
+					break;
+				case NORTH:
+					break;
+				case SOUTH:
+					break;
+				case WEST:
+					nextRotation = (nextRotation == MAX_ROTATION)? BASE_ROTATION : nextRotation + ROTATION_VAL;
+					turningRight = true;
+					beginTurnCountdown();
+					break;
+				default:
+					break;
+				}
+			} else if(next.arrayY > watching.arrayY) {
+				System.out.println("South");
+				switch(this.getDirection()) {
+				case EAST:
+					nextRotation = (nextRotation == MAX_ROTATION)? BASE_ROTATION : nextRotation + ROTATION_VAL;
+					turningRight = true;
+					beginTurnCountdown();
+					break;
+				case NORTH:
+					break;
+				case SOUTH:
+					break;
+				case WEST:
+					nextRotation = (nextRotation == BASE_ROTATION)? MAX_ROTATION : nextRotation - ROTATION_VAL;
+					turningRight = false;
+					beginTurnCountdown();
+					break;
+				default:
+					break;
+				}
+			} else if(next.arrayX > watching.arrayX) {
+				System.out.println("East");
+				switch(this.getDirection()) {
+				case EAST:
+					break;
+				case NORTH:
+					nextRotation = (nextRotation == MAX_ROTATION)? BASE_ROTATION : nextRotation + ROTATION_VAL;
+					turningRight = true;
+					beginTurnCountdown();
+					break;
+				case SOUTH:
+					nextRotation = (nextRotation == BASE_ROTATION)? MAX_ROTATION : nextRotation - ROTATION_VAL;
+					turningRight = false;
+					beginTurnCountdown();
+					break;
+				case WEST:
+					break;
+				default:
+					break;
+				}
+			} else if(next.arrayX < watching.arrayX) {
+				System.out.println("West");
+				switch(this.getDirection()) {
+				case EAST:
+					break;
+				case NORTH:
+					nextRotation = (nextRotation == BASE_ROTATION)? MAX_ROTATION : nextRotation - ROTATION_VAL;
+					turningRight = false;
+					beginTurnCountdown();
+					break;
+				case SOUTH:
+					nextRotation = (nextRotation == MAX_ROTATION)? BASE_ROTATION : nextRotation + ROTATION_VAL;
+					turningRight = true;
+					beginTurnCountdown();
+					break;
+				case WEST:
+					break;
+				default:
+					break;
+				}
+			} if(nextRotation != this.getRotation()) {
+				for(Direction dir : Direction.values()) {
+					if(dir.getRotation() == nextRotation) {
+						turnDirection = dir;
+					}
+				}
+			}
+			route.remove(next);
+		}
+	}
 	
 	public void bump() throws Exception {
 		if(isTouching(Car.class)) {
@@ -120,6 +349,9 @@ public abstract class Car extends Actor implements IntersectionListener{
 		if(state == Car.State.COMING) {
 			state = Car.State.IN;
 			this.incrementStatistic();
+			if(!hasDecidedTurn) {
+				decideTurn();
+			};
 		}
 	}
 
@@ -128,8 +360,8 @@ public abstract class Car extends Actor implements IntersectionListener{
 		if(state == Car.State.GOING) {
 			state = Car.State.FAR;
 			watching = null;
+			hasDecidedTurn = false;
 			isGoing = false;
-			decideTurn();
 		}
 	}
 	
@@ -145,6 +377,10 @@ public abstract class Car extends Actor implements IntersectionListener{
 	@Override
 	public void watch(Intersection intersection) {
 		watching = intersection;
+		if(!hasPath) {
+			hasPath = true;
+			route = (ArrayList<Intersection>) findPath(watching, TrafficWorld.layout[6][2]);
+		}
 	}
 }
 

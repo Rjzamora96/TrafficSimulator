@@ -13,8 +13,7 @@ public class PurpleCar extends Car{
 		instancesCreated++;
 	}
 	
-	@Override
-	public void decideTurn() {
+	/*public void decideTurn() {
 		Random rand = new Random();
 		int roll = rand.nextInt(PROBABILITY_ROLL);
 		int nextRotation = this.getRotation();
@@ -28,7 +27,7 @@ public class PurpleCar extends Car{
 				}
 			}
 		}
-	}
+	}*/
 	
 	@Override
 	public void checkMapEdge() {

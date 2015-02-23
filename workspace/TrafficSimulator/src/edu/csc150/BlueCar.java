@@ -12,7 +12,7 @@ public class BlueCar extends Car{
 		instancesCreated++;
 	}
 	
-	@Override
+	/*@Override
 	public void decideTurn() {
 		turnCounter++;
 		int nextRotation = this.getRotation();
@@ -29,7 +29,7 @@ public class BlueCar extends Car{
 				}
 			}
 		}
-	}
+	}*/
 	
 	@Override
 	public void checkMapEdge() {
